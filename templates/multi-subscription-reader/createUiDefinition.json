@@ -1,0 +1,73 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/0.1.2-preview/CreateUIDefinition.MultiVm.json#",
+  "handler": "Microsoft.Azure.CreateUIDef",
+  "version": "0.1.2-preview",
+  "parameters": {
+    "config": {
+      "isWizard": false,
+      "basics": {
+        "description": "Concede a Claranet acceso de **solo lectura** (rol Reader) sobre las suscripciones que selecciones. La suscripción y región de arriba solo indican dónde se registra el despliegue; los permisos se aplican en las suscripciones marcadas abajo."
+      }
+    },
+    "basics": [
+      {
+        "name": "subsApi",
+        "type": "Microsoft.Solutions.ArmApiControl",
+        "request": {
+          "method": "GET",
+          "path": "subscriptions?api-version=2022-12-01"
+        }
+      },
+      {
+        "name": "spApi",
+        "type": "Microsoft.Solutions.GraphApiControl",
+        "request": {
+          "method": "GET",
+          "path": "v1.0/servicePrincipals?$filter=appId eq '9a7f3191-d3ea-457f-bf15-f89ea937f994'&$select=id,displayName,appOwnerOrganizationId"
+        }
+      },
+      {
+        "name": "spMissing",
+        "type": "Microsoft.Common.InfoBox",
+        "visible": "[empty(steps('basics').spApi.value)]",
+        "options": {
+          "style": "Warning",
+          "text": "No se ha encontrado la Enterprise Application de Claranet en este tenant. Completa primero el paso 1 (consentimiento de administrador) o pega su Object ID manualmente."
+        }
+      },
+      {
+        "name": "principalId",
+        "type": "Microsoft.Common.TextBox",
+        "label": "Object ID de la Enterprise Application",
+        "defaultValue": "[first(steps('basics').spApi.value).id]",
+        "toolTip": "Se detecta automáticamente. Es el Object ID de Entra ID > Enterprise applications > la app de Claranet (no el Application ID).",
+        "constraints": {
+          "required": true,
+          "regex": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+          "validationMessage": "Debe ser un GUID."
+        }
+      },
+      {
+        "name": "subscriptions",
+        "type": "Microsoft.Common.DropDown",
+        "label": "Suscripciones",
+        "toolTip": "Suscripciones donde Claranet tendrá el rol Reader.",
+        "placeholder": "Selecciona una o varias suscripciones",
+        "multiselect": true,
+        "selectAll": true,
+        "filter": true,
+        "filterPlaceholder": "Filtrar por nombre",
+        "multiLine": true,
+        "constraints": {
+          "allowedValues": "[map(filter(steps('basics').subsApi.value, (s) => equals(s.state, 'Enabled')), (s) => parse(concat('{\"label\":\"', s.displayName, '\",\"description\":\"', s.subscriptionId, '\",\"value\":\"', s.subscriptionId, '\"}')))]",
+          "required": true
+        }
+      }
+    ],
+    "steps": [],
+    "outputs": {
+      "principalId": "[steps('basics').principalId]",
+      "subscriptionIds": "[steps('basics').subscriptions]"
+    }
+  }
+}

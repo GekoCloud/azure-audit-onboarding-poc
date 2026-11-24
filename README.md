@@ -28,9 +28,16 @@ A continuación, ve a **Entra ID > Enterprise applications**, busca la aplicaci�
 
 ## Paso 2: conceder el rol Reader en Azure (Owner / User Access Administrator)
 
-Elige **una** de las dos opciones.
+Elige **una** de las opciones.
 
-### Opción A: todo el tenant (recomendada)
+### Opción recomendada: selecciona las suscripciones
+Un único despliegue. Marca las suscripciones (o *Select all*) y pulsa **Review + create**. El Object ID de la aplicación se detecta automáticamente.
+
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FGekoCloud%2Fazure-audit-onboarding-poc%2Fmain%2Ftemplates%2Fmulti-subscription-reader%2Fazuredeploy.json/createUIDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FGekoCloud%2Fazure-audit-onboarding-poc%2Fmain%2Ftemplates%2Fmulti-subscription-reader%2FcreateUiDefinition.json)
+
+> La suscripción y la región del formulario solo indican dónde se registra el despliegue. Los permisos se aplican en las suscripciones que marques. Necesitas Owner o User Access Administrator en cada una.
+
+### Opción A: todo el tenant (incluye suscripciones futuras)
 Asigna el rol en el *Tenant Root Group*, así cubre todas las suscripciones, también las que se creen en el futuro. En el formulario, selecciona como Management Group el Tenant Root Group.
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FGekoCloud%2Fazure-audit-onboarding-poc%2Fmain%2Ftemplates%2Fmanagementgroup-reader%2Fazuredeploy.json)
